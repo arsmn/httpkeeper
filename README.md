@@ -1,6 +1,6 @@
 # arsmn/httpkeeper
 
-`httpkeeper` currently provides HTTP External Authentication Service middleware for Go. It is compatible with Go's own `net/http`, goji, Gin & anything that implements the `http.Handler` interface.
+`httpkeeper` currently provides HTTP External Authentication Service middleware for Go. It is compatible vanilla `net/http`, `gorilla/mux`, `goji`, `Gin` & anything that implements the `http.Handler` interface.
 
 ### Install
 
