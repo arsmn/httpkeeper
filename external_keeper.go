@@ -42,8 +42,8 @@ func (o externalkeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	proxyReq, err := http.NewRequest(r.Method, url, nil)
 	proxyReq.Header = make(http.Header)
-	for h, val := range r.Header {
-		proxyReq.Header[h] = val
+	for _, h := range o.opts.AllowedRequestHeaders {
+		proxyReq.Header[h] = r.Header[h]
 	}
 
 	httpClient := http.Client{}
