@@ -49,18 +49,25 @@ func (o externalkeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	httpClient := http.Client{}
 	resp, err := httpClient.Do(proxyReq)
 	if err != nil {
-		return
+		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
 	}
-
-	if resp.StatusCode == http.StatusOK {
-
-	}
-
-	for h, val := range resp.Header {
-		r.Header[h] = val
-	}
-
 	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		for _, h := range o.opts.AllowedAuthorizationHeaders {
+			r.Header[h] = resp.Header[h]
+		}
+		o.h.ServeHTTP(w, r)
+	case http.StatusUnauthorized:
+		o.opts.UnauthorizedHandler.ServeHTTP(w, r)
+	case http.StatusForbidden:
+		o.opts.ForbiddenHandler.ServeHTTP(w, r)
+	case http.StatusInternalServerError:
+		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
+	default:
+		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
+	}
 }
 
 func defaultUnauthorizedHandler(w http.ResponseWriter, r *http.Request) {
