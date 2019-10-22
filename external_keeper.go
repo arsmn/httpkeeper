@@ -12,11 +12,12 @@ var (
 	defaultAllowedAuthorizationHeaders = []string{"Location", "Authorization", "Proxy-Authenticate", "Set-cookie", "WWW-Authenticate"}
 )
 
-type externalkeeperAuth struct {
+type externalKeeperAuth struct {
 	h    http.Handler
 	opts ExternalKeeperOptions
 }
 
+// ExternalKeeperOptions stores the configuration for External Authentication
 type ExternalKeeperOptions struct {
 	AuthService                 string
 	PathPrefix                  string
@@ -32,7 +33,8 @@ type ExternalKeeperOptions struct {
 	InternalServerErrorHandler  http.Handler
 }
 
-func (o externalkeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP satisfies the http.Handler interface for externalkeeperAuth
+func (o externalKeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if r == nil {
 		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
@@ -101,7 +103,7 @@ func defaultForbiddenHandler(w http.ResponseWriter, r *http.Request) {
 // ExternalAuth provides HTTP middleware for protecting URIs with external service
 func ExternalAuth(opts ExternalKeeperOptions) func(http.Handler) http.Handler {
 	fn := func(h http.Handler) http.Handler {
-		return externalkeeperAuth{h, opts}
+		return externalKeeperAuth{h, opts}
 	}
 	return fn
 }
