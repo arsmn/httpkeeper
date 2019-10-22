@@ -14,7 +14,7 @@ var (
 
 type externalKeeperAuth struct {
 	h    http.Handler
-	opts ExternalKeeperOptions
+	opts *ExternalKeeperOptions
 }
 
 // ExternalKeeperOptions stores the configuration for External Authentication
@@ -101,7 +101,7 @@ func defaultForbiddenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ExternalAuth provides HTTP middleware for protecting URIs with external service
-func ExternalAuth(opts ExternalKeeperOptions) func(http.Handler) http.Handler {
+func ExternalAuth(opts *ExternalKeeperOptions) func(http.Handler) http.Handler {
 	fn := func(h http.Handler) http.Handler {
 		return externalKeeperAuth{h, opts}
 	}
