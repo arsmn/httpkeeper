@@ -2,13 +2,13 @@
 
 `httpkeeper` currently provides HTTP External Authentication Service middleware for Go. It is compatible with Go's own `net/http`, goji, Gin & anything that implements the `http.Handler` interface.
 
-### Install It
+### Install
 
 ```sh
 $ go get github.com/arsmn/httpkeeper
 ```
 
-#### Advanced Usage
+#### Usage
 
 `httpkeeper` provides a `ExternalAuth` function to get you up and running.
 You should pass a `ExternalKeeperOptions` struct to `ExternalAuth`. `NewExternalKeeperOptions` provides a `ExternalKeeperOptions` with default values.
@@ -20,8 +20,6 @@ For more control over the process, use `With` prefixed functions. This allows yo
 * Configure `IncludeBody` to send request body to auth service.
 
 ### gorilla/mux
-
-Since it's all `http.Handler`, `httpauth` works with [gorilla/mux](https://github.com/gorilla/mux) (and most other routers) as well:
 
 ```go
 package main
@@ -50,8 +48,6 @@ func YourHandler(w http.ResponseWriter, r *http.Request) {
 ```
 
 ### net/http
-
-If you're using vanilla `net/http`:
 
 ```go
 package main
