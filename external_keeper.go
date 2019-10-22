@@ -61,6 +61,7 @@ func (o externalkeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := httpClient.Do(proxyReq)
 	if err != nil {
 		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -97,6 +98,7 @@ func defaultForbiddenHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 }
 
+// ExternalAuth provides HTTP middleware for protecting URIs with external service
 func ExternalAuth(opts ExternalKeeperOptions) func(http.Handler) http.Handler {
 	fn := func(h http.Handler) http.Handler {
 		return externalkeeperAuth{h, opts}
@@ -104,6 +106,7 @@ func ExternalAuth(opts ExternalKeeperOptions) func(http.Handler) http.Handler {
 	return fn
 }
 
+// NewExternalKeeperOptions return an ExternalKeeperOptions with default values
 func NewExternalKeeperOptions(authService, pathPrefix, protocol string) *ExternalKeeperOptions {
 	return &ExternalKeeperOptions{
 		AuthService:                 authService,
@@ -118,16 +121,19 @@ func NewExternalKeeperOptions(authService, pathPrefix, protocol string) *Externa
 	}
 }
 
+// WithAllowedRequestHeaders sets AllowedRequestHeaders
 func (opts *ExternalKeeperOptions) WithAllowedRequestHeaders(headers []string) *ExternalKeeperOptions {
 	opts.AllowedRequestHeaders = append(opts.AllowedRequestHeaders, headers...)
 	return opts
 }
 
+// WithAllowedAuthorizationHeaders sets AllowedAuthorizationHeaders
 func (opts *ExternalKeeperOptions) WithAllowedAuthorizationHeaders(headers []string) *ExternalKeeperOptions {
 	opts.AllowedAuthorizationHeaders = append(opts.AllowedAuthorizationHeaders, headers...)
 	return opts
 }
 
+// WithBody includes body to auth service
 func (opts *ExternalKeeperOptions) WithBody(allowPartialBody bool, maxBodyBytes int) *ExternalKeeperOptions {
 	opts.IncludeBody = true
 	opts.AllowPartialBody = allowPartialBody
@@ -135,6 +141,7 @@ func (opts *ExternalKeeperOptions) WithBody(allowPartialBody bool, maxBodyBytes 
 	return opts
 }
 
+// WithNotFoundHandler sets http handler when auth service responses with NotFound (404) status
 func (opts *ExternalKeeperOptions) WithNotFoundHandler(h http.Handler) *ExternalKeeperOptions {
 	if h == nil {
 		opts.NotFoundHandler = http.HandlerFunc(defaultNotFoundHandler)
@@ -143,6 +150,7 @@ func (opts *ExternalKeeperOptions) WithNotFoundHandler(h http.Handler) *External
 	return opts
 }
 
+// WithForbiddenHandler sets http handler when auth service responses with Forbidden (403) status
 func (opts *ExternalKeeperOptions) WithForbiddenHandler(h http.Handler) *ExternalKeeperOptions {
 	if h == nil {
 		opts.ForbiddenHandler = http.HandlerFunc(defaultForbiddenHandler)
@@ -151,6 +159,7 @@ func (opts *ExternalKeeperOptions) WithForbiddenHandler(h http.Handler) *Externa
 	return opts
 }
 
+// WithUnauthorizedHandler sets http handler when auth service responses with Unauthorized (401) status
 func (opts *ExternalKeeperOptions) WithUnauthorizedHandler(h http.Handler) *ExternalKeeperOptions {
 	if h == nil {
 		opts.UnauthorizedHandler = http.HandlerFunc(defaultUnauthorizedHandler)
@@ -159,6 +168,7 @@ func (opts *ExternalKeeperOptions) WithUnauthorizedHandler(h http.Handler) *Exte
 	return opts
 }
 
+// WithInternalServerErrorHandler sets http handler when auth service responses with InternalServerError (500) status or any other unhandled status
 func (opts *ExternalKeeperOptions) WithInternalServerErrorHandler(h http.Handler) *ExternalKeeperOptions {
 	if h == nil {
 		opts.InternalServerErrorHandler = http.HandlerFunc(defaultInternalServerErrorHandler)
