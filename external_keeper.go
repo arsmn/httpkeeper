@@ -41,7 +41,7 @@ func (o externalKeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reqBody *bytes.Reader
+	reqBody := new(bytes.Reader)
 	if o.opts.IncludeBody {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
