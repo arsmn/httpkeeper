@@ -77,6 +77,8 @@ func (o externalKeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		o.opts.UnauthorizedHandler.ServeHTTP(w, r)
 	case http.StatusForbidden:
 		o.opts.ForbiddenHandler.ServeHTTP(w, r)
+	case http.StatusNotFound:
+		o.opts.NotFoundHandler.ServeHTTP(w, r)
 	case http.StatusInternalServerError:
 		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
 	default:
