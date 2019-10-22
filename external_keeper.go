@@ -1,7 +1,9 @@
 package httpkeeper
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -9,8 +11,6 @@ var (
 	defaultAllowedRequestHeaders       = []string{"Authorization", "Cookie", "From", "Proxy-Authorization", "User-Agent", "X-Forwarded-For", "X-Forwarded-Host", "X-Forwarded-Proto"}
 	defaultAllowedAuthorizationHeaders = []string{"Location", "Authorization", "Proxy-Authenticate", "Set-cookie", "WWW-Authenticate"}
 )
-
-const bearerScheme string = "Bearer "
 
 type externalkeeperAuth struct {
 	h    http.Handler
@@ -36,11 +36,22 @@ func (o externalkeeperAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if r == nil {
 		o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
+		return
+	}
+
+	var reqBody *bytes.Reader
+	if o.opts.IncludeBody {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			o.opts.InternalServerErrorHandler.ServeHTTP(w, r)
+			return
+		}
+		reqBody = bytes.NewReader(body)
 	}
 
 	url := fmt.Sprintf("%s://%s/%s/%s", o.opts.Protocol, o.opts.AuthService, o.opts.PathPrefix, r.RequestURI)
 
-	proxyReq, err := http.NewRequest(r.Method, url, nil)
+	proxyReq, err := http.NewRequest(r.Method, url, reqBody)
 	proxyReq.Header = make(http.Header)
 	for _, h := range o.opts.AllowedRequestHeaders {
 		proxyReq.Header[h] = r.Header[h]
